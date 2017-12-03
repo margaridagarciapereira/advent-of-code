@@ -68,6 +68,27 @@ int Part1(vector<int> numbers) {
 	return accumulator;
 }
 
+///
+/// Now, instead of considering the next digit, it wants you to consider
+/// the digit halfway around the circular list. That is, if your list 
+/// contains 10 items, only include a digit in your sum if the digit 10/2 = 5
+/// steps forward matches it. Fortunately, your list has an even number of elements.
+///
+int Part2(vector<int> numbers) {
+	int accumulator = 0;
+	int nextIndex = numbers.size()/2 - 1;
+	
+	for(int i = 0; i < numbers.size(); i++){
+		nextIndex++;
+		if(nextIndex == numbers.size())
+			nextIndex = 0;
+
+		if(numbers[i] == numbers[nextIndex])
+			accumulator += numbers[i];
+	}
+	return accumulator;
+}
+
 int main() {
 	string sNumbers = ReadFile("day1.txt");
 
@@ -75,8 +96,10 @@ int main() {
 	vector<int> numbers = ReturnDigits(sNumbers);
 	
 	int accumulator = Part1(numbers);
-
 	cout << "Part 1: " << accumulator << endl;
+
+	accumulator = Part2(numbers);
+	cout << "Part 2: " << accumulator << endl;
+
 	return accumulator;
 }
-
