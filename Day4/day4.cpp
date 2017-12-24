@@ -21,7 +21,24 @@ bool IsPassphraseValid(string s) {
 	return true;
 }
 
-int CountValidPassphrases(){
+bool IsPassphraseValidAnagram(string s) {
+	stringstream sstream(s);
+	string word;
+	vector<string> words;
+
+	while(getline(sstream, word, ' ')) {
+		for(string w : words) {
+			sort(w.begin(), w.end());
+			sort(word.begin(), word.end());
+			if(w == word)
+				return false;
+		}
+		words.push_back(word);
+	}	
+	return true;
+}
+
+int CountValidPassphrases(bool ignoreAnagrams){
 	ifstream file("day4.txt");
 	string temp;
 	vector<string> passphrases;
@@ -29,15 +46,23 @@ int CountValidPassphrases(){
 	int validPassphrases = 0;
 
 	while(getline(file, temp)) {
-		if(IsPassphraseValid(temp))
-			validPassphrases++;		
+		if((ignoreAnagrams && IsPassphraseValid(temp)) || (!ignoreAnagrams && IsPassphraseValidAnagram(temp)))
+			validPassphrases++;	
 	}
 	return validPassphrases;
 }
 
-int main() {
-	int validPassphrases = CountValidPassphrases();
-	cout << "Valid passphrases: " << validPassphrases << endl;
+int Part1() {
+	return CountValidPassphrases(true);
+}
 
-	return validPassphrases;
+int Part2() {
+	return CountValidPassphrases(false);
+}
+
+int main() {
+	cout << "Valid passphrases - Part 1: " << Part1() << endl;
+	cout << "Valid passphrases - Part 2: " << Part2() << endl;
+
+	return 0;
 }
