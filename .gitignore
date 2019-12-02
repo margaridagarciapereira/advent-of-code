@@ -2,3 +2,5 @@
 *.exe
 *.swo
 */node_modules/*
+2019/**/*.js
+2019/**/*.js.map
