@@ -6,9 +6,9 @@ const loadMemory = () =>
     .split(/,\r?\n?/)
     .map(inst => +inst);
 
-const restoreGravity = (instructions: number[]) => {
-  instructions[1] = 12;
-  instructions[2] = 2;
+const restoreGravity = (instructions: number[], noun: number, verb: number) => {
+  instructions[1] = noun;
+  instructions[2] = verb;
 };
 
 type Operation = "Sum" | "Multiplication";
@@ -30,9 +30,9 @@ const executeCalc = (
       instructions[firstIndex] * instructions[secondIndex];
 };
 
-const executeProgram = () => {
+const executeProgram = (noun: number, verb: number) => {
   let instructions = loadMemory();
-  restoreGravity(instructions);
+  restoreGravity(instructions, noun, verb);
   let instructionPointer = 0;
   let opCode = 0;
 
@@ -52,4 +52,16 @@ const executeProgram = () => {
   return instructions[0];
 };
 
-console.log("Part 1: ", executeProgram());
+console.log("Part 1: ", executeProgram(12, 2));
+
+const findInputsResult = (target: number) => {
+    for(let noun = 0; noun <= 99; noun++) {
+        for(let verb = 0; verb <= 99; verb++) {
+            if(executeProgram(noun, verb) === target)
+                return 100 * noun + verb;
+        }
+    }
+    return NaN;
+};
+
+console.log('Part 2: ', findInputsResult(19690720));
