@@ -1,6 +1,6 @@
 import * as fs from "fs";
 
-const getInstructions = () =>
+const loadMemory = () =>
   fs
     .readFileSync("day2.txt", "utf8")
     .split(/,\r?\n?/)
@@ -16,11 +16,11 @@ type Operation = "Sum" | "Multiplication";
 const executeCalc = (
   instructions: number[],
   operation: Operation,
-  operationIndex: number
+  instructionPointer: number
 ) => {
-  const firstIndex = instructions[operationIndex + 1];
-  const secondIndex = instructions[operationIndex + 2];
-  const thirdIndex = instructions[operationIndex + 3];
+  const firstIndex = instructions[instructionPointer + 1];
+  const secondIndex = instructions[instructionPointer + 2];
+  const thirdIndex = instructions[instructionPointer + 3];
 
   if (operation === "Sum")
     instructions[thirdIndex] =
@@ -30,22 +30,26 @@ const executeCalc = (
       instructions[firstIndex] * instructions[secondIndex];
 };
 
-let instructions = getInstructions();
-restoreGravity(instructions);
-let index = 0;
-let instruction = 0;
+const executeProgram = () => {
+  let instructions = loadMemory();
+  restoreGravity(instructions);
+  let instructionPointer = 0;
+  let opCode = 0;
 
-while (instruction !== 99 && index < instructions.length - 3) {
-  instruction = instructions[index];
+  while (opCode !== 99 && instructionPointer < instructions.length - 3) {
+    opCode = instructions[instructionPointer];
 
-  if (instruction === 1) {
-    executeCalc(instructions, "Sum", index);
+    if (opCode === 1) {
+      executeCalc(instructions, "Sum", instructionPointer);
+    }
+
+    if (opCode === 2) {
+      executeCalc(instructions, "Multiplication", instructionPointer);
+    }
+    instructionPointer += 4;
   }
 
-  if (instruction === 2) {
-    executeCalc(instructions, "Multiplication", index);
-  }
-  index += 4;
-}
+  return instructions[0];
+};
 
-console.log("Part 1: ", instructions[0]);
+console.log("Part 1: ", executeProgram());
