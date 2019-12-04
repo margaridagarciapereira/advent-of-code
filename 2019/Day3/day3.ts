@@ -1,3 +1,6 @@
+/** Disclaimer: did not use Set<ICoordinate> in this solution has Sets functionality is not great in es6
+ * and for it to work, it would have very high complexity; hence the creation of the method findIntersection here. */
+
 import * as fs from "fs";
 
 const loadWires = () =>
@@ -96,9 +99,38 @@ const findClosestCoordinateToOrigin = (intersections: ICoordinate[]) => {
   );
 };
 
+const findStepsNeededForQuickestIntersection = (
+  wire1: ICoordinate[],
+  wire2: ICoordinate[],
+  intersections: ICoordinate[]
+) => {
+  let sum = undefined;
+  intersections.forEach(int => {
+    const noSteps =
+      wire1.indexOf(wire1.filter(c => c.x === int.x && c.y === int.y)[0]) +
+      wire2.indexOf(wire2.filter(c => c.x === int.x && c.y === int.y)[0]);
+    if (!sum || (sum && sum > noSteps)) {
+      sum = noSteps;
+    }
+  });
+  return sum;
+};
+
 const wires = loadWires();
 const wire1Coords = getCoordinates(wires[0]);
 const intersections = findIntersections(wire1Coords, wires[1]);
-const distanceToClosestIntersection = findClosestCoordinateToOrigin(intersections);
+const distanceToClosestIntersection = findClosestCoordinateToOrigin(
+  intersections
+);
 
-console.log('Part 1: ', distanceToClosestIntersection);
+console.log("Part 1: ", distanceToClosestIntersection);
+
+const wire2Coords = getCoordinates(wires[1]);
+console.log(
+  "Part 2: ",
+  findStepsNeededForQuickestIntersection(
+    wire1Coords,
+    wire2Coords,
+    intersections
+  )
+);
