@@ -12,9 +12,20 @@ const isThereRepeatedDigits = (pwd: string) => {
   return false;
 };
 
+const isThereAtLeastOnePair = (pwd: string) => {
+  for (let d = 0; d < 5; d++) {
+    const foundDigits = pwd.split("").filter(digit => digit === pwd[d]);
+    if (foundDigits.length === 2) {
+      return true;
+    }
+  }
+  return false;
+};
+
 const getAmountOfValidPwds = () => {
   const ranges = loadRanges();
-  let counter = 0;
+  let counterPart1 = 0,
+    counterPart2 = 0;
 
   for (let i = +ranges[0]; i < +ranges[1]; i++) {
     const pwd = i.toString();
@@ -23,12 +34,15 @@ const getAmountOfValidPwds = () => {
     if (digits.sort().join("") === pwd) {
       // means all digits only increase or stay the same
       if (isThereRepeatedDigits(pwd)) {
-        counter++;
+        counterPart1++;
+      }
+      if (isThereAtLeastOnePair(pwd)) {
+        counterPart2++;
       }
     }
   }
-
-  return counter;
+  console.log("Part 1: ", counterPart1);
+  console.log("Part 1: ", counterPart2);
 };
 
-console.log("Part 1: ", getAmountOfValidPwds());
+getAmountOfValidPwds();
