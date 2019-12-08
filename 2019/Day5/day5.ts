@@ -7,7 +7,15 @@ const loadMemory = () =>
     .split(/,\r?\n?/)
     .map(inst => +inst);
 
-type Operation = "Sum" | "Multiplication" | "Input" | "Output";
+type Operation =
+  | "Sum"
+  | "Multiplication"
+  | "Input"
+  | "Output"
+  | "JumpIfTrue"
+  | "JumpIfFalse"
+  | "LessThan"
+  | "Equals";
 
 type Mode = "Immediate" | "Position";
 
@@ -16,7 +24,7 @@ const executeCalc = (
   operation: Operation,
   config: Config,
   input?: number
-) => {
+): number | void => {
   if (operation === "Sum") {
     const first =
       config.firstParam.mode === "Position"
@@ -48,6 +56,66 @@ const executeCalc = (
     console.log(first);
   } else if (operation === "Input") {
     instructions[config.firstParam.value] = input;
+  } else if (operation === "JumpIfTrue") {
+    const first =
+      config.firstParam.mode === "Position"
+        ? instructions[config.firstParam.value]
+        : config.firstParam.value;
+
+    const second =
+      config.secondParam.mode === "Position"
+        ? instructions[config.secondParam.value]
+        : config.secondParam.value;
+
+    if (first !== 0) {
+      return second;
+    }
+  } else if (operation === "JumpIfFalse") {
+    const first =
+      config.firstParam.mode === "Position"
+        ? instructions[config.firstParam.value]
+        : config.firstParam.value;
+
+    const second =
+      config.secondParam.mode === "Position"
+        ? instructions[config.secondParam.value]
+        : config.secondParam.value;
+
+    if (first === 0) {
+      return second;
+    }
+  } else if (operation === "LessThan") {
+    const first =
+      config.firstParam.mode === "Position"
+        ? instructions[config.firstParam.value]
+        : config.firstParam.value;
+
+    const second =
+      config.secondParam.mode === "Position"
+        ? instructions[config.secondParam.value]
+        : config.secondParam.value;
+
+    if (first < second) {
+      instructions[config.thirdParam.value] = 1;
+    } else {
+      instructions[config.thirdParam.value] = 0;
+    }
+  } else if (operation === "Equals") {
+    const first =
+      config.firstParam.mode === "Position"
+        ? instructions[config.firstParam.value]
+        : config.firstParam.value;
+
+    const second =
+      config.secondParam.mode === "Position"
+        ? instructions[config.secondParam.value]
+        : config.secondParam.value;
+
+    if (first === second) {
+      instructions[config.thirdParam.value] = 1;
+    } else {
+      instructions[config.thirdParam.value] = 0;
+    }
   } else console.log("Not a valid operation.");
 };
 
@@ -75,17 +143,13 @@ const parseInstruction = (
   modes.reverse();
 
   const firstParamMode: Mode =
-    modes.length < 3 || modes[2] === "0" /*|| opCode === 3 */
-      ? "Position"
-      : "Immediate";
+    modes.length < 3 || modes[2] === "0" ? "Position" : "Immediate";
   const secondParamMode: Mode =
     modes.length < 4 || modes[3] === "0" ? "Position" : "Immediate";
   const thirdParamMode: Mode =
-    modes.length < 5 || modes[4] === "0" /*|| opCode === 1 || opCode === 2*/
-      ? "Position"
-      : "Immediate";
+    modes.length < 5 || modes[4] === "0" ? "Position" : "Immediate";
 
-  if (opCode === 1 || opCode === 2) {
+  if (opCode === 1 || opCode === 2 || opCode === 7 || opCode === 8) {
     return {
       opCode: opCode,
       firstParam: {
@@ -107,6 +171,18 @@ const parseInstruction = (
       firstParam: {
         value: instructions[instructionPointer + 1],
         mode: firstParamMode
+      }
+    } as Config;
+  } else if (opCode === 5 || opCode === 6) {
+    return {
+      opCode: opCode,
+      firstParam: {
+        value: instructions[instructionPointer + 1],
+        mode: firstParamMode
+      },
+      secondParam: {
+        value: instructions[instructionPointer + 2],
+        mode: secondParamMode
       }
     } as Config;
   } else if (opCode === 99) {
@@ -141,9 +217,33 @@ const executeProgram = (input: number) => {
       executeCalc(instructions, "Output", config);
       instructionPointer += 2;
     }
+
+    if (opCode === 5) {
+      const newPointer = executeCalc(instructions, "JumpIfTrue", config);
+      instructionPointer = newPointer ? newPointer : instructionPointer + 3;
+    }
+
+    if (opCode === 6) {
+      const newPointer = executeCalc(instructions, "JumpIfFalse", config);
+      instructionPointer = newPointer ? newPointer : instructionPointer + 3;
+    }
+
+    if (opCode === 7) {
+      executeCalc(instructions, "LessThan", config);
+      instructionPointer += 4;
+    }
+
+    if (opCode === 8) {
+      executeCalc(instructions, "Equals", config);
+      instructionPointer += 4;
+    }
   }
 
   return instructions[0];
 };
 
-console.log("Part 1: ", executeProgram(1));
+executeProgram(1);
+console.log("End of Part 1");
+
+executeProgram(5);
+console.log("End of Part 5");
