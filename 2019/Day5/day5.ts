@@ -1,5 +1,4 @@
 import * as fs from "fs";
-const readline = require("readline");
 
 const loadMemory = () =>
   fs
